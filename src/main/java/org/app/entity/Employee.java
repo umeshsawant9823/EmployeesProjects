@@ -2,7 +2,7 @@ package org.app.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-
+// Employee table
 @Entity
 @Table(name = "employees")
 @Data
