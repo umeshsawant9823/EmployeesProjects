@@ -11,6 +11,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EmployeeDTO {
+
     @NotBlank(message = "Name cannot be blank")
     private String name;
     @NotNull(message = "Salary is mandatory")
@@ -21,4 +22,6 @@ public class EmployeeDTO {
     @NotBlank(message = "Email is mandatory")
     @Email(message = "Please provide a valid email format")
     private String email;
+
+
 }

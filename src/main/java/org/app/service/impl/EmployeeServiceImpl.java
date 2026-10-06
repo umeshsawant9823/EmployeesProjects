@@ -22,6 +22,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     // Helper 1: Entity to DTO
     private EmployeeDTO toDTO(Employee emp) {
         EmployeeDTO dto = new EmployeeDTO();
+
         BeanUtils.copyProperties(emp, dto);
         return dto;
     }

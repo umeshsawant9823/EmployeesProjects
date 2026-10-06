@@ -3,6 +3,7 @@ package org.app.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.app.dto.EmployeeDTO;
+import org.app.kafka.KafkaProducerService;
 import org.app.service.EmployeeService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,11 +18,16 @@ import java.util.Map;
 public class EmployeeController {
 
     private final EmployeeService employeeService;
+    private final KafkaProducerService kafkaProducerService;
 
     // 1. POST - Create new employee
     @PostMapping
     public ResponseEntity<EmployeeDTO> createEmployee(@Valid @RequestBody EmployeeDTO dto) {
+
         EmployeeDTO created = employeeService.createEmployee(dto);
+       // Kafka
+        String message = "New Employee Joined: Name=" + created.getName() + ", Dept=" + created.getDepartment();
+        kafkaProducerService.sendEmployeeCreated(message);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
@@ -40,7 +46,12 @@ public class EmployeeController {
     // 4. PUT - Update entire record
     @PutMapping("/{id}")
     public ResponseEntity<EmployeeDTO> updateEmployee(@PathVariable Long id, @Valid @RequestBody EmployeeDTO dto) {
-        return ResponseEntity.ok(employeeService.updateEmployee(id, dto));
+        EmployeeDTO updated = employeeService.updateEmployee(id, dto);
+        // 2. KAFKA
+        String message = "Employee Updated: Name=" + updated.getName() + ", Dept=" + updated.getDepartment() + ", Salary=" + updated.getSalary();
+        kafkaProducerService.sendEmployeeUpdateAll(message);
+
+        return ResponseEntity.ok(updated);
     }
 
     // 5. PATCH - Update specific fields (e.g. only salary)
@@ -56,6 +67,10 @@ public class EmployeeController {
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteEmployee(@PathVariable Long id) {
         employeeService.deleteEmployee(id);
+
+        // Kafka
+        String message="Employee Deleted Id:-"+id;
+        kafkaProducerService.sendEmployeeDeleted(message);
         return ResponseEntity.ok("Employee deleted successfully with ID: " + id);
     }
 }
